@@ -1,6 +1,10 @@
+import { Request, Response, NextFunction } from 'express';
+
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const routes = require('./routes/v1');
+
 const users = [
   { id: 1, email: "admin", password: "123", role: "admin" },
   { id: 2, email: "john@example.com", password: "secret123", role: "user" },
@@ -13,7 +17,7 @@ app.use(cookieParser());
 const JWT_SECRET = "supersecretkey"; // In production, keep this in .env file
 
 // Login endpoint
-app.post("/auth/login", (req, res) => {
+app.post("/auth/login", (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = users.find(
     (u) => u.email === email && u.password === password
@@ -30,7 +34,7 @@ app.post("/auth/login", (req, res) => {
 });
 
 // Get authenticated user's profile
-app.get("/auth/me", (req, res) => {
+app.get("/auth/me", (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -46,6 +50,8 @@ app.get("/auth/me", (req, res) => {
     res.status(401).json({ error: "Invalid token" });
   }
 });
+
+app.use('/api/v1', routes);
 
 // Start the server
 const PORT = 4000;

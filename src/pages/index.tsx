@@ -1,9 +1,15 @@
 import { useEffect } from "react";
+import { GetServerSidePropsContext } from 'next';
 import { useDispatch } from "react-redux";
 import { login } from "../store/slices/userSlice";
-import Home from "./home";
+import { User } from "../interfaces";
+import { useRouter } from "next/router";
 
-export async function getServerSideProps(context) {
+interface Props {
+  user: User
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   const token = context.req.cookies.token;
 
   if (!token) {
@@ -33,14 +39,16 @@ export async function getServerSideProps(context) {
   };
 }
 
-export default function App({ user }) {
+export default function App({ user }: Props) {
   const dispatch = useDispatch();
+  const router = useRouter();
 
   useEffect(() => {
     if (user) {
       dispatch(login({ user }));
+      router.push("/dashboard");
     }
   }, []);
 
-  return <Home />;
+  return null;
 }
