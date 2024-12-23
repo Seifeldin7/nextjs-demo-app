@@ -1,27 +1,42 @@
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { logout } from "../store/slices/userSlice";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
 import { getPosts } from "../api-helpers/posts";
-import { Post } from "../interfaces";
-import { RootState } from "../store";
+import { Post, User } from "../interfaces";
+import PostsList  from '../components/posts-list';
+import { GetServerSidePropsContext } from 'next'
 
 interface Props {
   posts: Post[];
+  user: User;
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const token = context.req.cookies.token;
+
   const posts = await getPosts();
+  const user = await fetch("http://nodejs-express-app:4000/auth/me", {
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => res.json());
+
+  if (!user?.email) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+    }
+  }
 
   return {
     props: {
       posts,
+      user
     },
   };
 }
 
-export default function Dashboard({ posts }: Props) {
-  const user = useSelector((state: RootState) => state.user.user);
+export default function Dashboard({ posts, user }: Props) {
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -30,12 +45,6 @@ export default function Dashboard({ posts }: Props) {
     router.push("/login");
     dispatch(logout());
   }
-
-  useEffect(() => {
-    if (!user) {
-      router.push("/");
-    }
-  }, []);
 
   if (!posts) {
     return <div>Loading...</div>;
@@ -50,17 +59,7 @@ export default function Dashboard({ posts }: Props) {
       >
         Logout
       </button>
-      <div className="mt-8 w-full max-w-2xl">
-        <h2 className="text-2xl font-bold mb-4">Posts</h2>
-        <ul>
-          {posts.map((post) => (
-            <li key={post.id} className="mb-2">
-              <h3 className="text-xl font-semibold">{post.title}</h3>
-              <p>{post?.content}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <PostsList posts={posts} />
     </div>
   );
 }

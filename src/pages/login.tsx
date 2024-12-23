@@ -8,10 +8,9 @@ export default function Login() {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  // eslint-disable-next-line
-  async function handleSubmit(formData: any) {
-    const email = formData.get("email");
-    const password = formData.get("password");
+  async function handleSubmit(formData: FormData) {
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
     setError("");
 
     const response = await fetch("/api/auth/login", {

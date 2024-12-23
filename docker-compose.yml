@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  nextjs-app:
+    build:
+      context: ./
+    container_name: nextjs-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - nodejs-express-app
+    networks:
+      - app-network
+
+  nodejs-express-app:
+    build:
+      context: ./backend
+    container_name: nodejs-express-app
+    ports:
+      - "4000:4000"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

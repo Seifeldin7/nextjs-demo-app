@@ -14,7 +14,8 @@ const eslintConfig = [
   ...compat.config({
     extends: ['next'],
     rules: {
-      "no-redeclare": "error",
+      "no-redeclare": "off",
+      '@typescript-eslint/no-require-imports': 'off'
     },
   }),
 ];

@@ -4,7 +4,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === "POST") {
     const { email, password } = req.body;
 
-    const response = await fetch("http://localhost:4000/auth/login", {
+    const response = await fetch("http://nodejs-express-app:4000/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
