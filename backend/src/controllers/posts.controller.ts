@@ -1,44 +1,6 @@
-// const httpStatus = require('http-status');
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
+const { db } = require("../firebase");
 
-// // Create a new check
-// exports.createCheck = async (req, res, next) => {
-//   const check = await checkService.createCheck(req.body, req.user);
-//   const report = new Report({
-//     check: check._id
-//   });
-//   await report.save();
-
-//   check.job = scheduleCheck(check);
-
-//   res.status(httpStatus.CREATED).json(check);
-// };
-
-// // Update an existing check
-// exports.updateCheck = async (req, res, next) => {
-//   const checkId = req.params.id;
-//   const updatedCheckData = req.body;
-//   const user = req.user;
-
-//   const existingCheck = await checkService.getCheckById(checkId);
-
-//   // Stop the existing cron job
-//   existingCheck.job.stop();
-
-//   // Update the check and schedule a new cron job
-//   const updatedCheck = await checkService.updateCheck(
-//     checkId,
-//     updatedCheckData,
-//     user
-//   );
-//   updatedCheck.job = scheduleCheck(updatedCheck);
-
-//   res.status(httpStatus.OK).json(updatedCheck);
-// };
-
-// // Delete a check
-// exports.deleteCheck = async (req, res, next) => {
-//   const checkId = req.params.id;
 //   const existingCheck = await checkService.getCheckById(checkId);
 
 //   // Stop the existing cron job
@@ -50,6 +12,68 @@ import { Request, Response, NextFunction } from 'express';
 
 // Get all posts for a user
 exports.getPosts = async (req: Request, res: Response, next: NextFunction) => {
-  const posts = [{ id: 1, title: "Post 1" }, { id: 2, title: "Post 2" }];
+  const snapshot = await db.collection("posts").get();
+  const posts = snapshot.docs.map((doc: any) => doc.data());
   res.status(200).json(posts);
+};
+
+exports.getPostById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const doc = await db.collection("posts").doc(id).get();
+    if (!doc.exists) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    res.status(200).json({ id: doc.id, ...doc.data() });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.createPost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const newPost = req.body;
+    const docRef = await db.collection("posts").add(newPost);
+    res.status(201).json({ id: docRef.id, ...newPost });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updatePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const updatedPost = req.body;
+    const docRef = db.collection("posts").doc(id);
+    await docRef.update(updatedPost);
+    res.status(200).json({ id, ...updatedPost });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deletePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    await db.collection("posts").doc(id).delete();
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
 };

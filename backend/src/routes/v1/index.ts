@@ -1,10 +1,8 @@
-// @ts-ignore
 const express = require('express');
 const postsRoute = require('./posts.route');
 
-// @ts-ignore
-const router = express.Router();
+const postsRouter = express.Router();
 
-router.use('/posts', postsRoute);
+postsRouter.use('/posts', postsRoute);
 
-module.exports = router;
+module.exports = postsRouter;

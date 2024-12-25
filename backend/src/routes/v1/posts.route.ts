@@ -1,20 +1,18 @@
-// @ts-expect-error
-const express = require('express');
-const { postsController } = require('../../controllers');
-const catchAsync = require('../../utils/catchAsync');
+const expressApp = require("express");
+const { postsController } = require("../../controllers");
+const catchAsync = require("../../utils/catchAsync");
 
-// @ts-expect-error
-const router = express.Router();
+const router = expressApp.Router();
 
 router
-  .route('/')
-  .get(
-    // catchAsync(authMiddleware.authenticate),
-    catchAsync(postsController.getPosts)
-  )
-  .post(
-    // catchAsync(authMiddleware.authenticate),
-    // catchAsync(checkController.createCheck)
-  );
+  .route("/")
+  .get(catchAsync(postsController.getPosts))
+  .post(catchAsync(postsController.createPost));
+
+router
+  .route("/:id")
+  .get(catchAsync(postsController.getPostById))
+  .put(catchAsync(postsController.updatePost))
+  .delete(catchAsync(postsController.deletePost));
 
 module.exports = router;
