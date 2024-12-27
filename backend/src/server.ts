@@ -1,9 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
-
+import { Request, Response } from 'express';
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const routes = require('./routes/v1');
+const { errorConverter, errorHandler } = require('./middleware/error');
 
 const users = [
   { id: 1, email: "admin", password: "123", role: "admin" },
@@ -14,9 +14,10 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+// TODO: Move to env
 const JWT_SECRET = "supersecretkey"; // In production, keep this in .env file
 
-// Login endpoint
+// TODO: Move to controller
 app.post("/auth/login", (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = users.find(
@@ -33,7 +34,7 @@ app.post("/auth/login", (req: Request, res: Response) => {
   res.json({ token });
 });
 
-// Get authenticated user's profile
+// TODO: Move to controller
 app.get("/auth/me", (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
 
@@ -52,6 +53,10 @@ app.get("/auth/me", (req: Request, res: Response) => {
 });
 
 app.use('/api/v1', routes);
+
+app.use(errorConverter);
+
+app.use(errorHandler);
 
 // Start the server
 const PORT = 4000;

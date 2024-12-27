@@ -1,12 +1,16 @@
 const expressApp = require("express");
 const { postsController } = require("../../controllers");
 const catchAsync = require("../../utils/catchAsync");
+const authMiddleware = require("../../middleware/auth");
 
 const router = expressApp.Router();
 
 router
   .route("/")
-  .get(catchAsync(postsController.getPosts))
+  .get(
+    catchAsync(authMiddleware.authenticate),
+    catchAsync(postsController.getPosts)
+  )
   .post(catchAsync(postsController.createPost));
 
 router

@@ -5,6 +5,7 @@ import { getPosts } from "../api-helpers/posts";
 import { Post, User } from "../interfaces";
 import PostsList  from '../components/posts-list';
 import { GetServerSidePropsContext } from 'next'
+import { API_BASE_URL } from '../utils/constants';
 
 interface Props {
   posts: Post[];
@@ -14,12 +15,12 @@ interface Props {
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const token = context.req.cookies.token;
 
-  const posts = await getPosts();
-  const user = await fetch("http://nodejs-express-app:4000/auth/me", {
+  const res = await getPosts(token);
+  const user = await fetch(`${API_BASE_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => res.json());
 
-  if (!user?.email) {
+  if (!user?.email || (res.status && res.status !== 200)) {
     return {
       redirect: {
         destination: '/',
@@ -30,7 +31,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   return {
     props: {
-      posts,
+      posts: res,
       user
     },
   };

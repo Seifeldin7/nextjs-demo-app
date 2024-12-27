@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { login } from "../store/slices/userSlice";
 import { GetServerSidePropsContext } from 'next'
 import { User } from "../interfaces";
+import { API_BASE_URL } from '../utils/constants';
 
 interface Props {
   user: User;
@@ -14,7 +15,7 @@ interface Props {
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const token = context.req.cookies.token;
 
-  const user = await fetch("http://nodejs-express-app:4000/auth/me", {
+  const user = await fetch(`${API_BASE_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => res.json());
 
